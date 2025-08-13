@@ -72,3 +72,7 @@ An Android (Flutter) app that ingests McDonald's "Points history" via screenshot
 ## Performance Target
 - Optimize for importing 500–800 rows in approximately 1 minute on a Samsung Note 20 Ultra
 
+## Implementation Notes
+- A minimal Flutter project lives under `flutter_app/` containing the FIFO ledger and perceptual-hash helpers in Dart.
+- Run `flutter test` inside that directory to execute the unit tests (requires Flutter SDK).
+
