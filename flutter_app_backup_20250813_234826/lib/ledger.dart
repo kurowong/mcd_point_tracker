@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-enum TransactionType { earned, used, expired }
+enum TransactionType { earned, used }
 
 class Transaction {
   Transaction(this.date, this.type, this.points);
@@ -59,9 +59,6 @@ class Ledger {
         lots.add(Lot(txn.date, txn.points));
       } else if (txn.type == TransactionType.used) {
         _consume(txn.points);
-      } else if (txn.type == TransactionType.expired) {
-        // Expired transactions are handled automatically by expiry logic
-        // This represents manual expiry records from McDonald's data
       }
     }
     _expire(today);
@@ -111,45 +108,6 @@ class Ledger {
     }
     return results;
   }
-
-  YtdTotals getYtdTotals({DateTime? forYear}) {
-    final year = forYear?.year ?? today.year;
-    final yearStart = DateTime(year, 1, 1);
-    final yearEnd = DateTime(year + 1, 1, 1);
-
-    var earned = 0;
-    var used = 0;
-    var expired = 0;
-
-    // Calculate from transactions
-    for (final txn in transactions) {
-      if (txn.date.isBefore(yearStart) || !txn.date.isBefore(yearEnd)) {
-        continue;
-      }
-
-      switch (txn.type) {
-        case TransactionType.earned:
-          earned += txn.points;
-          break;
-        case TransactionType.used:
-          used += txn.points;
-          break;
-        case TransactionType.expired:
-          expired += txn.points;
-          break;
-      }
-    }
-
-    // Add expired points from lots (natural expiry)
-    for (final lot in lots) {
-      final expiry = lot.expiry();
-      if (expiry.year == year && lot.expired > 0) {
-        expired += lot.expired;
-      }
-    }
-
-    return YtdTotals(earned, used, expired);
-  }
 }
 
 class ExpiringBucket {
@@ -157,14 +115,4 @@ class ExpiringBucket {
 
   final DateTime monthStart;
   final int total;
-}
-
-class YtdTotals {
-  YtdTotals(this.earned, this.used, this.expired);
-
-  final int earned;
-  final int used;
-  final int expired;
-
-  int get net => earned - used - expired;
 }
