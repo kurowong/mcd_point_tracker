@@ -8,7 +8,7 @@ ThemeData buildLightTheme(ColorScheme scheme) {
       bodyColor: scheme.onSurface,
       displayColor: scheme.onSurface,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 1,
       surfaceTintColor: scheme.surfaceTint,
@@ -25,7 +25,7 @@ ThemeData buildDarkTheme(ColorScheme scheme) {
       bodyColor: scheme.onSurface,
       displayColor: scheme.onSurface,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 1,
       surfaceTintColor: scheme.surfaceTint,

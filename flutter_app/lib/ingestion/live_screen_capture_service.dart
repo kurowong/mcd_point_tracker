@@ -21,12 +21,13 @@ class LiveScreenCaptureService {
     if (!Platform.isAndroid) {
       return true;
     }
-    final accessibilityStatus = await Permission.accessibilityService.request();
-    if (!accessibilityStatus.isGranted) {
-      return false;
-    }
     final overlayStatus = await Permission.systemAlertWindow.request();
-    return overlayStatus.isGranted || overlayStatus.isLimited;
+    if (overlayStatus.isGranted || overlayStatus.isLimited) {
+      return true;
+    }
+    // Accessibility access must now be granted manually from system settings.
+    await openAppSettings();
+    return false;
   }
 
   Stream<Uint8List> startCapture(Stream<Uint8List> rawFrames) {

@@ -33,7 +33,8 @@ class ScreenshotImportService {
     );
     final metadata = <RawMediaMetadata>[];
     for (final path in paths) {
-      final assets = await path.getAssetListRange(start: 0, end: path.assetCount);
+      final assetCount = await path.assetCountAsync;
+      final assets = await path.getAssetListRange(start: 0, end: assetCount);
       for (final asset in assets) {
         if (asset.type != AssetType.image) {
           continue;

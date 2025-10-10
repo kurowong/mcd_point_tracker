@@ -106,28 +106,28 @@ DashboardData createDemoData() {
   }).reversed.toList();
 
   final ledger = <LedgerEntry>[
-    const LedgerEntry(
+    LedgerEntry(
       lotId: 'LOT-1045',
       acquiredOn: DateTime(2024, 1, 12),
       source: 'Credit card bonus',
       points: 3500,
       status: 'Open',
     ),
-    const LedgerEntry(
+    LedgerEntry(
       lotId: 'LOT-1046',
       acquiredOn: DateTime(2024, 2, 3),
       source: 'Gift card promo',
       points: 2100,
       status: 'Open',
     ),
-    const LedgerEntry(
+    LedgerEntry(
       lotId: 'LOT-1037',
       acquiredOn: DateTime(2023, 11, 21),
       source: 'Store purchase',
       points: 1250,
       status: 'Redeemed',
     ),
-    const LedgerEntry(
+    LedgerEntry(
       lotId: 'LOT-1039',
       acquiredOn: DateTime(2023, 12, 2),
       source: 'Restaurant',
@@ -137,12 +137,12 @@ DashboardData createDemoData() {
   ];
 
   final duplicates = <DuplicateWarning>[
-    const DuplicateWarning(
+    DuplicateWarning(
       transactionId: 'TX-88421',
       occurrences: 2,
       flaggedOn: DateTime(2024, 2, 14),
     ),
-    const DuplicateWarning(
+    DuplicateWarning(
       transactionId: 'TX-88463',
       occurrences: 3,
       flaggedOn: DateTime(2024, 2, 15),
@@ -150,13 +150,13 @@ DashboardData createDemoData() {
   ];
 
   final reviewQueue = <ReviewItem>[
-    const ReviewItem(
+    ReviewItem(
       memberId: 'MEM-2214',
       reason: 'High value redemption',
       submittedOn: DateTime(2024, 2, 16),
       points: 4200,
     ),
-    const ReviewItem(
+    ReviewItem(
       memberId: 'MEM-4450',
       reason: 'Manual adjustment',
       submittedOn: DateTime(2024, 2, 17),
@@ -168,7 +168,7 @@ DashboardData createDemoData() {
     balance: 58750,
     ytdEarnings: 12500,
     ytdRedemptions: 4200,
-    upcomingExpirations: const [
+    upcomingExpirations: [
       ExpirationNotice(
         lotId: 'LOT-1039',
         expiresOn: DateTime(2024, 3, 31),
