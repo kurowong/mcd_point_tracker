@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'controllers/media_ingestion_controller.dart';
 import 'controllers/preference_controller.dart';
 import 'l10n/app_localizations.dart';
 import 'models/mock_data.dart';
@@ -14,6 +15,7 @@ GoRouter createRouter(
   GlobalKey<NavigatorState> navigatorKey,
   DashboardData data,
   PreferenceController preferences,
+  MediaIngestionController ingestionController,
 ) {
   return GoRouter(
     navigatorKey: navigatorKey,
@@ -95,13 +97,16 @@ GoRouter createRouter(
           GoRoute(
             path: '/import',
             name: 'import',
-            builder: (context, state) => const ImportScreen(),
+            builder: (context, state) =>
+                ImportScreen(controller: ingestionController),
           ),
           GoRoute(
             path: '/settings',
             name: 'settings',
-            builder: (context, state) =>
-                SettingsScreen(preferences: preferences),
+            builder: (context, state) => SettingsScreen(
+              preferences: preferences,
+              ingestionController: ingestionController,
+            ),
           ),
         ],
       ),
