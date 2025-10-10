@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'controllers/media_ingestion_controller.dart';
 import 'controllers/preference_controller.dart';
+import 'controllers/transaction_review_controller.dart';
 import 'l10n/app_localizations.dart';
 import 'models/mock_data.dart';
 import 'ui/screens/dashboard_screen.dart';
@@ -16,6 +17,7 @@ GoRouter createRouter(
   DashboardData data,
   PreferenceController preferences,
   MediaIngestionController ingestionController,
+  TransactionReviewController reviewController,
 ) {
   return GoRouter(
     navigatorKey: navigatorKey,
@@ -92,7 +94,7 @@ GoRouter createRouter(
             path: '/manual-review',
             name: 'manualReview',
             builder: (context, state) =>
-                ManualReviewScreen(reviewQueue: data.reviewQueue),
+                ManualReviewScreen(controller: reviewController),
           ),
           GoRoute(
             path: '/import',

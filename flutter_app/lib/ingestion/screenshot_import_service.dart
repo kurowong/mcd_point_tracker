@@ -1,13 +1,21 @@
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
+import '../models/transaction.dart';
 import 'perceptual_hash.dart';
 import 'raw_media_metadata.dart';
+import 'raw_media_type.dart';
+import 'text_recognition_service.dart';
 
 class ScreenshotImportService {
-  ScreenshotImportService({required PerceptualHash hasher}) : _hasher = hasher;
+  ScreenshotImportService({
+    required PerceptualHash hasher,
+    required TextRecognitionService textRecognition,
+  })  : _hasher = hasher,
+        _textRecognition = textRecognition;
 
   final PerceptualHash _hasher;
+  final TextRecognitionService _textRecognition;
 
   Future<List<RawMediaMetadata>> fetchMetadata() async {
     final permissionGranted = await _ensurePermissions();
@@ -35,6 +43,16 @@ class ScreenshotImportService {
           continue;
         }
         final hash = _hasher.hash(bytes);
+        List<ParsedTransaction> parsedTransactions = const [];
+        try {
+          parsedTransactions = await _textRecognition.processImageBytes(
+            bytes,
+            mediaType: RawMediaType.screenshot,
+            sourceId: asset.id,
+          );
+        } catch (_) {
+          parsedTransactions = const [];
+        }
         metadata.add(
           RawMediaMetadata(
             id: asset.id,
@@ -48,6 +66,7 @@ class ScreenshotImportService {
               'width': asset.width,
               'height': asset.height,
             },
+            recognizedTransactions: parsedTransactions,
           ),
         );
       }
