@@ -131,9 +131,13 @@ class TransactionRepository {
       row['approved_at'] as int,
       isUtc: true,
     );
+    final offsetMinutes = row['time_zone_offset_minutes'] as int? ?? 0;
+    final offset = Duration(minutes: offsetMinutes);
+    final restoredDate = dateUtc.add(offset);
+    final restoredApprovedAt = approvedAtUtc.add(offset);
     return ConfirmedTransaction(
       uniqueHash: row['unique_hash'] as String,
-      date: dateUtc.toLocal(),
+      date: restoredDate,
       type: TransactionTypeLabel.fromString(row['type'] as String),
       points: row['points'] as int,
       sourceId: row['source_id'] as String,
@@ -141,9 +145,9 @@ class TransactionRepository {
         (value) => value.name == row['source_type'],
         orElse: () => RawMediaType.screenshot,
       ),
-      approvedAt: approvedAtUtc.toLocal(),
+      approvedAt: restoredApprovedAt,
       rawText: row['raw_text'] as String? ?? '',
-      timeZoneOffsetMinutes: row['time_zone_offset_minutes'] as int? ?? 0,
+      timeZoneOffsetMinutes: offsetMinutes,
     );
   }
 }
