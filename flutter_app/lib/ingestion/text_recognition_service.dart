@@ -110,7 +110,7 @@ class TextRecognitionService {
       return null;
     }
 
-    final type = TransactionTypeLabel.fromString(typeMatch.group(0)!);
+    final type = TransactionType.fromString(typeMatch.group(0)!);
     final rawPoints = int.tryParse(pointsMatch.group(0)!);
     if (rawPoints == null) {
       return null;
@@ -126,7 +126,13 @@ class TextRecognitionService {
     final dateConfidence = _confidenceForToken(line, dateMatch.group(0)!);
     final pointsConfidence = _confidenceForToken(line, pointsMatch.group(0)!);
 
-    final hash = transactionHash(parsedDate, type, normalizedPoints);
+    final hash = transactionHash(
+      parsedDate,
+      type,
+      normalizedPoints,
+      sourceId: sourceId,
+      rawText: text,
+    );
     return ParsedTransaction(
       uniqueHash: hash,
       date: parsedDate,

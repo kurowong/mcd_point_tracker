@@ -5,19 +5,10 @@ import 'package:crypto/crypto.dart';
 
 import '../ingestion/raw_media_type.dart';
 
-enum TransactionType { earned, used, expired }
-
-extension TransactionTypeLabel on TransactionType {
-  String get label {
-    switch (this) {
-      case TransactionType.earned:
-        return 'Earned';
-      case TransactionType.used:
-        return 'Used';
-      case TransactionType.expired:
-        return 'Expired';
-    }
-  }
+enum TransactionType {
+  earned,
+  used,
+  expired;
 
   static TransactionType fromString(String value) {
     final normalized = value.toLowerCase();
@@ -32,6 +23,20 @@ extension TransactionTypeLabel on TransactionType {
     }
     throw ArgumentError.value(value, 'value', 'Unsupported transaction type');
   }
+}
+
+extension TransactionTypeLabel on TransactionType {
+  String get label {
+    switch (this) {
+      case TransactionType.earned:
+        return 'Earned';
+      case TransactionType.used:
+        return 'Used';
+      case TransactionType.expired:
+        return 'Expired';
+    }
+  }
+
 }
 
 class ParsedTransaction {
@@ -150,12 +155,31 @@ class ConfirmedTransaction {
   final String rawText;
 }
 
-String transactionKey(DateTime date, TransactionType type, int points) {
+String transactionKey(
+  DateTime date,
+  TransactionType type,
+  int points, {
+  String sourceId = '',
+  String rawText = '',
+}) {
   final isoDate = date.toIso8601String().split('T').first;
-  return '$isoDate|${type.name}|$points';
+  final sanitizedText = rawText.replaceAll(RegExp(r'\s+'), ' ').trim();
+  return '$isoDate|${type.name}|$points|$sourceId|$sanitizedText';
 }
 
-String transactionHash(DateTime date, TransactionType type, int points) {
-  final key = transactionKey(date, type, points);
+String transactionHash(
+  DateTime date,
+  TransactionType type,
+  int points, {
+  String sourceId = '',
+  String rawText = '',
+}) {
+  final key = transactionKey(
+    date,
+    type,
+    points,
+    sourceId: sourceId,
+    rawText: rawText,
+  );
   return sha1.convert(utf8.encode(key)).toString();
 }
