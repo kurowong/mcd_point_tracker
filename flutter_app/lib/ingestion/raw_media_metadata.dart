@@ -1,6 +1,9 @@
 import 'dart:convert';
 
-enum RawMediaType { screenshot, video, liveCapture }
+import '../models/transaction.dart';
+import 'raw_media_type.dart';
+
+export 'raw_media_type.dart';
 
 class RawMediaMetadata {
   RawMediaMetadata({
@@ -13,7 +16,10 @@ class RawMediaMetadata {
     this.duration,
     this.frameSampleCount = 0,
     Map<String, dynamic>? extras,
-  }) : extras = extras ?? <String, dynamic>{};
+    List<ParsedTransaction>? recognizedTransactions,
+  })  : extras = extras ?? <String, dynamic>{},
+        recognizedTransactions =
+            recognizedTransactions ?? <ParsedTransaction>[];
 
   final String id;
   final RawMediaType type;
@@ -24,6 +30,7 @@ class RawMediaMetadata {
   final Duration? duration;
   final int frameSampleCount;
   final Map<String, dynamic> extras;
+  final List<ParsedTransaction> recognizedTransactions;
 
   String get prettyLabel => displayName ?? sourcePath;
 
@@ -37,6 +44,7 @@ class RawMediaMetadata {
     Duration? duration,
     int? frameSampleCount,
     Map<String, dynamic>? extras,
+    List<ParsedTransaction>? recognizedTransactions,
   }) {
     return RawMediaMetadata(
       id: id ?? this.id,
@@ -48,6 +56,8 @@ class RawMediaMetadata {
       duration: duration ?? this.duration,
       frameSampleCount: frameSampleCount ?? this.frameSampleCount,
       extras: extras ?? Map<String, dynamic>.from(this.extras),
+      recognizedTransactions:
+          recognizedTransactions ?? List<ParsedTransaction>.from(this.recognizedTransactions),
     );
   }
 
@@ -66,6 +76,8 @@ class RawMediaMetadata {
       'duration': duration?.inMilliseconds,
       'frameSampleCount': frameSampleCount,
       'extras': extras,
+      'recognizedTransactions':
+          recognizedTransactions.map((entry) => entry.toJson()).toList(),
     };
   }
 
@@ -88,6 +100,11 @@ class RawMediaMetadata {
             (key, value) => MapEntry(key, value),
           ) ??
           <String, dynamic>{},
+      recognizedTransactions: (json['recognizedTransactions'] as List?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(ParsedTransaction.fromJson)
+              .toList() ??
+          <ParsedTransaction>[],
     );
   }
 

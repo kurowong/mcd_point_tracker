@@ -5,18 +5,24 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 import 'adaptive_frame_extractor.dart';
+import '../models/transaction.dart';
 import 'perceptual_hash.dart';
 import 'raw_media_metadata.dart';
+import 'raw_media_type.dart';
+import 'text_recognition_service.dart';
 
 class GalleryVideoImportService {
   GalleryVideoImportService({
     required AdaptiveFrameExtractor frameExtractor,
     required PerceptualHash hasher,
+    required TextRecognitionService textRecognition,
   })  : _frameExtractor = frameExtractor,
-        _hasher = hasher;
+        _hasher = hasher,
+        _textRecognition = textRecognition;
 
   final AdaptiveFrameExtractor _frameExtractor;
   final PerceptualHash _hasher;
+  final TextRecognitionService _textRecognition;
 
   Future<List<RawMediaMetadata>> fetchMetadata() async {
     final permissionGranted = await _ensurePermissions();
@@ -45,6 +51,16 @@ class GalleryVideoImportService {
           continue;
         }
         final representativeHash = _hasher.hash(frames.first);
+        List<ParsedTransaction> parsedTransactions = const [];
+        try {
+          parsedTransactions = await _textRecognition.processFrames(
+            frames,
+            mediaType: RawMediaType.video,
+            sourceId: asset.id,
+          );
+        } catch (_) {
+          parsedTransactions = const [];
+        }
         entries.add(
           RawMediaMetadata(
             id: asset.id,
@@ -59,6 +75,7 @@ class GalleryVideoImportService {
               'width': asset.width,
               'height': asset.height,
             },
+            recognizedTransactions: parsedTransactions,
           ),
         );
       }

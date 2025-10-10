@@ -9,7 +9,11 @@ import '../ingestion/live_screen_capture_service.dart';
 import '../ingestion/media_repository.dart';
 import '../ingestion/perceptual_hash.dart';
 import '../ingestion/raw_media_metadata.dart';
+import '../ingestion/raw_media_type.dart';
 import '../ingestion/screenshot_import_service.dart';
+import '../ingestion/text_recognition_service.dart';
+import '../models/transaction.dart';
+import 'transaction_review_controller.dart';
 
 class IngestionReport {
   IngestionReport({
@@ -25,14 +29,23 @@ class IngestionReport {
 }
 
 class MediaIngestionController extends ChangeNotifier {
-  MediaIngestionController({required MediaRepository repository})
-      : _repository = repository,
-        _hasher = const PerceptualHash() {
+  MediaIngestionController({
+    required MediaRepository repository,
+    required TextRecognitionService textRecognition,
+    required TransactionReviewController reviewController,
+  })  : _repository = repository,
+        _hasher = const PerceptualHash(),
+        _textRecognition = textRecognition,
+        _reviewController = reviewController {
     final extractor = AdaptiveFrameExtractor();
-    _screenshotService = ScreenshotImportService(hasher: _hasher);
+    _screenshotService = ScreenshotImportService(
+      hasher: _hasher,
+      textRecognition: _textRecognition,
+    );
     _videoService = GalleryVideoImportService(
       frameExtractor: extractor,
       hasher: _hasher,
+      textRecognition: _textRecognition,
     );
     _liveService = LiveScreenCaptureService(
       frameExtractor: extractor,
@@ -42,6 +55,8 @@ class MediaIngestionController extends ChangeNotifier {
 
   final MediaRepository _repository;
   final PerceptualHash _hasher;
+  final TextRecognitionService _textRecognition;
+  final TransactionReviewController _reviewController;
   late final ScreenshotImportService _screenshotService;
   late final GalleryVideoImportService _videoService;
   late final LiveScreenCaptureService _liveService;
@@ -61,6 +76,7 @@ class MediaIngestionController extends ChangeNotifier {
       ..clear()
       ..addAll(storedAssets);
     _retentionDays = await _repository.loadRetentionDays();
+    _ingestRecognizedTransactions(storedAssets);
     notifyListeners();
   }
 
@@ -88,6 +104,7 @@ class MediaIngestionController extends ChangeNotifier {
     _assets.addAll(additions);
     _assets.sort((a, b) => b.capturedAt.compareTo(a.capturedAt));
     await _repository.appendMetadata(additions);
+    _ingestRecognizedTransactions(additions);
     notifyListeners();
   }
 
@@ -126,17 +143,7 @@ class MediaIngestionController extends ChangeNotifier {
     notifyListeners();
     unawaited(
       _liveService.startCapture(rawFrames).listen((frame) {
-        final hash = _hasher.hash(frame);
-        final metadata = RawMediaMetadata(
-          id: 'live-${DateTime.now().millisecondsSinceEpoch}',
-          type: RawMediaType.liveCapture,
-          sourcePath: 'live-capture',
-          capturedAt: DateTime.now(),
-          perceptualHash: hash,
-          frameSampleCount: 1,
-        );
-        _assets.add(metadata);
-        notifyListeners();
+        unawaited(_handleLiveFrame(frame));
       }).asFuture().whenComplete(() {
         _liveCaptureActive = false;
         notifyListeners();
@@ -172,5 +179,43 @@ class MediaIngestionController extends ChangeNotifier {
       }
     }
     return IngestionReport(unique: unique, duplicates: duplicates);
+  }
+
+  void _ingestRecognizedTransactions(List<RawMediaMetadata> metadata) {
+    final transactions = <ParsedTransaction>[];
+    for (final item in metadata) {
+      transactions.addAll(item.recognizedTransactions);
+    }
+    if (transactions.isNotEmpty) {
+      _reviewController.ingestRecognizedTransactions(transactions);
+    }
+  }
+
+  Future<void> _handleLiveFrame(Uint8List frame) async {
+    final id = 'live-${DateTime.now().millisecondsSinceEpoch}';
+    final hash = _hasher.hash(frame);
+    List<ParsedTransaction> parsed = const [];
+    try {
+      parsed = await _textRecognition.processFrames(
+        [frame],
+        mediaType: RawMediaType.liveCapture,
+        sourceId: id,
+      );
+    } catch (_) {
+      parsed = const [];
+    }
+    final metadata = RawMediaMetadata(
+      id: id,
+      type: RawMediaType.liveCapture,
+      sourcePath: 'live-capture',
+      capturedAt: DateTime.now(),
+      perceptualHash: hash,
+      frameSampleCount: 1,
+      recognizedTransactions: parsed,
+    );
+    _assets.add(metadata);
+    _assets.sort((a, b) => b.capturedAt.compareTo(a.capturedAt));
+    _ingestRecognizedTransactions([metadata]);
+    notifyListeners();
   }
 }

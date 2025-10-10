@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -5,7 +7,9 @@ import 'package:flutter/semantics.dart';
 
 import 'controllers/media_ingestion_controller.dart';
 import 'controllers/preference_controller.dart';
+import 'controllers/transaction_review_controller.dart';
 import 'ingestion/media_repository.dart';
+import 'ingestion/text_recognition_service.dart';
 import 'l10n/app_localizations.dart';
 import 'models/mock_data.dart';
 import 'preference_scope.dart';
@@ -15,19 +19,34 @@ import 'theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final mediaRepository = await MediaRepository.create();
-  final mediaIngestionController =
-      MediaIngestionController(repository: mediaRepository);
+  final textRecognition = TextRecognitionService();
+  final reviewController = TransactionReviewController();
+  final mediaIngestionController = MediaIngestionController(
+    repository: mediaRepository,
+    textRecognition: textRecognition,
+    reviewController: reviewController,
+  );
   await mediaIngestionController.initialize();
-  runApp(McdPointTrackerApp(ingestionController: mediaIngestionController));
+  runApp(
+    McdPointTrackerApp(
+      ingestionController: mediaIngestionController,
+      reviewController: reviewController,
+      textRecognition: textRecognition,
+    ),
+  );
 }
 
 class McdPointTrackerApp extends StatefulWidget {
   const McdPointTrackerApp({
     super.key,
     required this.ingestionController,
+    required this.reviewController,
+    required this.textRecognition,
   });
 
   final MediaIngestionController ingestionController;
+  final TransactionReviewController reviewController;
+  final TextRecognitionService textRecognition;
 
   @override
   State<McdPointTrackerApp> createState() => _McdPointTrackerAppState();
@@ -37,6 +56,8 @@ class _McdPointTrackerAppState extends State<McdPointTrackerApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
   late final PreferenceController _preferences;
   late final MediaIngestionController _mediaIngestionController;
+  late final TransactionReviewController _reviewController;
+  late final TextRecognitionService _textRecognition;
   late final DashboardData _dashboardData;
   late final GoRouter _router;
 
@@ -45,12 +66,15 @@ class _McdPointTrackerAppState extends State<McdPointTrackerApp> {
     super.initState();
     _preferences = PreferenceController(initialThemeMode: ThemeMode.light);
     _mediaIngestionController = widget.ingestionController;
+    _reviewController = widget.reviewController;
+    _textRecognition = widget.textRecognition;
     _dashboardData = createDemoData();
     _router = createRouter(
       _navigatorKey,
       _dashboardData,
       _preferences,
       _mediaIngestionController,
+      _reviewController,
     );
   }
 
@@ -58,6 +82,8 @@ class _McdPointTrackerAppState extends State<McdPointTrackerApp> {
   void dispose() {
     _preferences.dispose();
     _mediaIngestionController.dispose();
+    _reviewController.dispose();
+    unawaited(_textRecognition.dispose());
     super.dispose();
   }
 
