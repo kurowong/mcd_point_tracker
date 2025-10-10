@@ -28,7 +28,13 @@ class ReviewEntry {
     return editedType == TransactionType.used ? -value : value;
   }
 
-  String get editedHash => transactionHash(editedDate, editedType, effectivePoints);
+  String get editedHash => transactionHash(
+        editedDate,
+        editedType,
+        effectivePoints,
+        sourceId: sourceId,
+        rawText: rawText,
+      );
 
   ReviewEntry copy() {
     return ReviewEntry(id: id, original: original)
