@@ -89,6 +89,13 @@ class AppLocalizations {
       'confirmResetAction': 'Reset',
       'fullResetActionLabel': 'Full reset',
       'resetCompleteMessage': 'All local data was cleared.',
+      'notificationsTitle': 'Notifications',
+      'notificationsDescription':
+          'Send reminders 14 days before expiry at 9:00 MYT.',
+      'notificationThresholdLabel': 'Next-month expiration threshold',
+      'notificationNextMonthLabel':
+          'Next month ({month}) expiring total:',
+      'pointsAbbreviation': 'pts',
     },
     'es': {
       'appTitle': 'MCD Rastreador de Puntos',
@@ -162,6 +169,14 @@ class AppLocalizations {
       'confirmResetAction': 'Restablecer',
       'fullResetActionLabel': 'Restablecimiento total',
       'resetCompleteMessage': 'Todos los datos locales fueron eliminados.',
+      'notificationsTitle': 'Notificaciones',
+      'notificationsDescription':
+          'Envía recordatorios 14 días antes del vencimiento a las 9:00 MYT.',
+      'notificationThresholdLabel':
+          'Umbral de vencimientos del próximo mes',
+      'notificationNextMonthLabel':
+          'Total a vencer el próximo mes ({month}):',
+      'pointsAbbreviation': 'pts',
     },
   };
 

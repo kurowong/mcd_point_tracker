@@ -7,6 +7,7 @@ import 'package:flutter/semantics.dart';
 
 import 'controllers/ledger_controller.dart';
 import 'controllers/media_ingestion_controller.dart';
+import 'controllers/notification_controller.dart';
 import 'controllers/preference_controller.dart';
 import 'controllers/transaction_review_controller.dart';
 import 'data/app_database.dart';
@@ -18,6 +19,7 @@ import 'l10n/app_localizations.dart';
 import 'models/mock_data.dart';
 import 'preference_scope.dart';
 import 'router.dart';
+import 'services/expiration_notification_service.dart';
 import 'theme.dart';
 
 Future<void> main() async {
@@ -31,6 +33,12 @@ Future<void> main() async {
     transactionRepository: transactionRepository,
   );
   await ledgerController.initialize();
+  final notificationController = NotificationController(
+    settingsRepository: settingsRepository,
+    ledgerController: ledgerController,
+    notificationService: ExpirationNotificationService(),
+  );
+  await notificationController.initialize();
   final reviewController = TransactionReviewController(
     repository: transactionRepository,
     ledgerController: ledgerController,
@@ -51,6 +59,7 @@ Future<void> main() async {
       ingestionController: mediaIngestionController,
       reviewController: reviewController,
       ledgerController: ledgerController,
+      notificationController: notificationController,
       textRecognition: textRecognition,
       settingsRepository: settingsRepository,
       initialThemeMode: themeMode,
@@ -66,6 +75,7 @@ class McdPointTrackerApp extends StatefulWidget {
     required this.ingestionController,
     required this.reviewController,
     required this.ledgerController,
+    required this.notificationController,
     required this.textRecognition,
     required this.settingsRepository,
     required this.initialThemeMode,
@@ -76,6 +86,7 @@ class McdPointTrackerApp extends StatefulWidget {
   final MediaIngestionController ingestionController;
   final TransactionReviewController reviewController;
   final LedgerController ledgerController;
+  final NotificationController notificationController;
   final TextRecognitionService textRecognition;
   final SettingsRepository settingsRepository;
   final ThemeMode initialThemeMode;
@@ -91,6 +102,7 @@ class _McdPointTrackerAppState extends State<McdPointTrackerApp> {
   late final MediaIngestionController _mediaIngestionController;
   late final TransactionReviewController _reviewController;
   late final LedgerController _ledgerController;
+  late final NotificationController _notificationController;
   late final TextRecognitionService _textRecognition;
   late final DashboardData _dashboardData;
   late final GoRouter _router;
@@ -106,6 +118,7 @@ class _McdPointTrackerAppState extends State<McdPointTrackerApp> {
     _mediaIngestionController = widget.ingestionController;
     _reviewController = widget.reviewController;
     _ledgerController = widget.ledgerController;
+    _notificationController = widget.notificationController;
     _textRecognition = widget.textRecognition;
     _dashboardData = createDemoData();
     _router = createRouter(
@@ -115,6 +128,7 @@ class _McdPointTrackerAppState extends State<McdPointTrackerApp> {
       _mediaIngestionController,
       _reviewController,
       _ledgerController,
+      _notificationController,
     );
   }
 
@@ -124,6 +138,7 @@ class _McdPointTrackerAppState extends State<McdPointTrackerApp> {
     _mediaIngestionController.dispose();
     _reviewController.dispose();
     _ledgerController.dispose();
+    _notificationController.dispose();
     unawaited(_textRecognition.dispose());
     unawaited(widget.database.close());
     super.dispose();

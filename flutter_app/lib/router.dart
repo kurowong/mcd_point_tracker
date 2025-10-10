@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'controllers/ledger_controller.dart';
 import 'controllers/media_ingestion_controller.dart';
+import 'controllers/notification_controller.dart';
 import 'controllers/preference_controller.dart';
 import 'controllers/transaction_review_controller.dart';
 import 'l10n/app_localizations.dart';
@@ -20,6 +21,7 @@ GoRouter createRouter(
   MediaIngestionController ingestionController,
   TransactionReviewController reviewController,
   LedgerController ledgerController,
+  NotificationController notificationController,
 ) {
   return GoRouter(
     navigatorKey: navigatorKey,
@@ -115,6 +117,7 @@ GoRouter createRouter(
               preferences: preferences,
               ingestionController: ingestionController,
               reviewController: reviewController,
+              notificationController: notificationController,
             ),
           ),
         ],

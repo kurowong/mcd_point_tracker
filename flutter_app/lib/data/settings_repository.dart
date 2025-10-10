@@ -12,6 +12,9 @@ class SettingsRepository {
   static const String _localeKey = 'preferred_locale';
   static const String _retentionKey = 'raw_media_retention_days';
   static const String _timezoneKey = 'preferred_timezone_offset';
+  static const String _notificationsEnabledKey = 'notifications_enabled';
+  static const String _notificationThresholdKey = 'notification_threshold';
+  static const String _lastThresholdAlertKey = 'notification_last_threshold';
 
   Future<ThemeMode> loadThemeMode({ThemeMode fallback = ThemeMode.system}) async {
     final row = await _loadValue(_themeKey);
@@ -86,6 +89,55 @@ class SettingsRepository {
       return null;
     }
     return Duration(minutes: minutes);
+  }
+
+  Future<bool> loadNotificationsEnabled({bool fallback = true}) async {
+    final value = await _loadValue(_notificationsEnabledKey);
+    if (value == null) {
+      return fallback;
+    }
+    if (value.isEmpty) {
+      return fallback;
+    }
+    return value == '1' || value.toLowerCase() == 'true';
+  }
+
+  Future<void> saveNotificationsEnabled(bool enabled) async {
+    await _saveValue(_notificationsEnabledKey, enabled ? '1' : '0');
+  }
+
+  Future<int> loadNotificationThreshold({int fallback = 5000}) async {
+    final value = await _loadValue(_notificationThresholdKey);
+    if (value == null) {
+      return fallback;
+    }
+    return int.tryParse(value) ?? fallback;
+  }
+
+  Future<void> saveNotificationThreshold(int threshold) async {
+    await _saveValue(_notificationThresholdKey, threshold.toString());
+  }
+
+  Future<DateTime?> loadLastThresholdAlertMonth() async {
+    final value = await _loadValue(_lastThresholdAlertKey);
+    if (value == null || value.isEmpty) {
+      return null;
+    }
+    try {
+      final parsed = DateTime.parse(value);
+      return DateTime(parsed.year, parsed.month, 1);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> saveLastThresholdAlertMonth(DateTime? month) async {
+    if (month == null) {
+      await _deleteValue(_lastThresholdAlertKey);
+      return;
+    }
+    final normalized = DateTime(month.year, month.month, 1);
+    await _saveValue(_lastThresholdAlertKey, normalized.toIso8601String());
   }
 
   Future<void> clearAll() async {
