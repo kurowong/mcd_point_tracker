@@ -46,7 +46,9 @@ class ParsedTransaction {
     required this.typeConfidence,
     required this.dateConfidence,
     required this.pointsConfidence,
-  });
+    int? timeZoneOffsetMinutes,
+  }) : timeZoneOffsetMinutes =
+            timeZoneOffsetMinutes ?? date.timeZoneOffset.inMinutes;
 
   final String uniqueHash;
   final DateTime date;
@@ -58,6 +60,7 @@ class ParsedTransaction {
   final double typeConfidence;
   final double dateConfidence;
   final double pointsConfidence;
+  final int timeZoneOffsetMinutes;
 
   double get minConfidence =>
       [typeConfidence, dateConfidence, pointsConfidence]
@@ -76,6 +79,7 @@ class ParsedTransaction {
     double? typeConfidence,
     double? dateConfidence,
     double? pointsConfidence,
+    int? timeZoneOffsetMinutes,
   }) {
     return ParsedTransaction(
       uniqueHash: uniqueHash ?? this.uniqueHash,
@@ -88,6 +92,8 @@ class ParsedTransaction {
       typeConfidence: typeConfidence ?? this.typeConfidence,
       dateConfidence: dateConfidence ?? this.dateConfidence,
       pointsConfidence: pointsConfidence ?? this.pointsConfidence,
+      timeZoneOffsetMinutes:
+          timeZoneOffsetMinutes ?? this.timeZoneOffsetMinutes,
     );
   }
 
@@ -103,6 +109,7 @@ class ParsedTransaction {
       'typeConfidence': typeConfidence,
       'dateConfidence': dateConfidence,
       'pointsConfidence': pointsConfidence,
+      'timeZoneOffsetMinutes': timeZoneOffsetMinutes,
     };
   }
 
@@ -124,6 +131,7 @@ class ParsedTransaction {
       typeConfidence: (json['typeConfidence'] as num?)?.toDouble() ?? 0,
       dateConfidence: (json['dateConfidence'] as num?)?.toDouble() ?? 0,
       pointsConfidence: (json['pointsConfidence'] as num?)?.toDouble() ?? 0,
+      timeZoneOffsetMinutes: json['timeZoneOffsetMinutes'] as int? ?? 0,
     );
   }
 }
@@ -138,7 +146,9 @@ class ConfirmedTransaction {
     required this.sourceType,
     required this.approvedAt,
     required this.rawText,
-  });
+    int? timeZoneOffsetMinutes,
+  }) : timeZoneOffsetMinutes =
+            timeZoneOffsetMinutes ?? date.timeZoneOffset.inMinutes;
 
   final String uniqueHash;
   final DateTime date;
@@ -148,6 +158,7 @@ class ConfirmedTransaction {
   final RawMediaType sourceType;
   final DateTime approvedAt;
   final String rawText;
+  final int timeZoneOffsetMinutes;
 }
 
 String transactionKey(DateTime date, TransactionType type, int points) {

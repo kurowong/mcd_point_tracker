@@ -17,9 +17,12 @@ class RawMediaMetadata {
     this.frameSampleCount = 0,
     Map<String, dynamic>? extras,
     List<ParsedTransaction>? recognizedTransactions,
+    int? timeZoneOffsetMinutes,
   })  : extras = extras ?? <String, dynamic>{},
         recognizedTransactions =
-            recognizedTransactions ?? <ParsedTransaction>[];
+            recognizedTransactions ?? <ParsedTransaction>[],
+        timeZoneOffsetMinutes =
+            timeZoneOffsetMinutes ?? capturedAt.timeZoneOffset.inMinutes;
 
   final String id;
   final RawMediaType type;
@@ -31,6 +34,7 @@ class RawMediaMetadata {
   final int frameSampleCount;
   final Map<String, dynamic> extras;
   final List<ParsedTransaction> recognizedTransactions;
+  final int timeZoneOffsetMinutes;
 
   String get prettyLabel => displayName ?? sourcePath;
 
@@ -45,6 +49,7 @@ class RawMediaMetadata {
     int? frameSampleCount,
     Map<String, dynamic>? extras,
     List<ParsedTransaction>? recognizedTransactions,
+    int? timeZoneOffsetMinutes,
   }) {
     return RawMediaMetadata(
       id: id ?? this.id,
@@ -58,6 +63,8 @@ class RawMediaMetadata {
       extras: extras ?? Map<String, dynamic>.from(this.extras),
       recognizedTransactions:
           recognizedTransactions ?? List<ParsedTransaction>.from(this.recognizedTransactions),
+      timeZoneOffsetMinutes:
+          timeZoneOffsetMinutes ?? this.timeZoneOffsetMinutes,
     );
   }
 
@@ -78,6 +85,7 @@ class RawMediaMetadata {
       'extras': extras,
       'recognizedTransactions':
           recognizedTransactions.map((entry) => entry.toJson()).toList(),
+      'timeZoneOffsetMinutes': timeZoneOffsetMinutes,
     };
   }
 
@@ -105,6 +113,10 @@ class RawMediaMetadata {
               .map(ParsedTransaction.fromJson)
               .toList() ??
           <ParsedTransaction>[],
+      timeZoneOffsetMinutes: json['timeZoneOffsetMinutes'] as int? ??
+          DateTime.parse(json['capturedAt'] as String)
+              .timeZoneOffset
+              .inMinutes,
     );
   }
 

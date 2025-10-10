@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../controllers/transaction_review_controller.dart';
 import '../../l10n/app_localizations.dart';
+import '../../models/review_entry.dart';
 import '../../models/transaction.dart';
 
 class ManualReviewScreen extends StatefulWidget {
@@ -65,7 +68,7 @@ class _ManualReviewScreenState extends State<ManualReviewScreen> {
       helpText: localization.translate('dateFieldLabel'),
     );
     if (selected != null) {
-      widget.controller.updateEntry(entry.id, date: selected);
+      await widget.controller.updateEntry(entry.id, date: selected);
     }
   }
 
@@ -199,7 +202,9 @@ class _ReviewCard extends StatelessWidget {
                         .toList(),
                     onChanged: (value) {
                       if (value != null) {
-                        controller.updateEntry(entry.id, type: value);
+                        unawaited(
+                          controller.updateEntry(entry.id, type: value),
+                        );
                       }
                     },
                   ),
@@ -222,7 +227,9 @@ class _ReviewCard extends StatelessWidget {
                       onChanged: (value) {
                         final parsed = int.tryParse(value);
                         if (parsed != null) {
-                          controller.updateEntry(entry.id, points: parsed);
+                          unawaited(
+                            controller.updateEntry(entry.id, points: parsed),
+                          );
                         }
                       },
                     ),
@@ -234,8 +241,8 @@ class _ReviewCard extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: FilledButton.icon(
-                onPressed: () {
-                  final success = controller.approveEntry(entry.id);
+                onPressed: () async {
+                  final success = await controller.approveEntry(entry.id);
                   final messenger = ScaffoldMessenger.of(context);
                   messenger.showSnackBar(
                     SnackBar(
