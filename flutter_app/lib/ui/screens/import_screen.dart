@@ -57,6 +57,9 @@ class _ImportScreenState extends State<ImportScreen> {
       return;
     }
     await _handleIngestionReport(report, includeDuplicates: false);
+    if (!mounted) {
+      return;
+    }
     setState(() => _processingScreenshots = false);
   }
 
@@ -67,6 +70,9 @@ class _ImportScreenState extends State<ImportScreen> {
       return;
     }
     await _handleIngestionReport(report, includeDuplicates: true);
+    if (!mounted) {
+      return;
+    }
     setState(() => _processingVideos = false);
   }
 
