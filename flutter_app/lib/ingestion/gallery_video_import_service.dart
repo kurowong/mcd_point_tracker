@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:permission_handler/permission_handler.dart';
@@ -71,13 +70,12 @@ class GalleryVideoImportService {
     if (thumb == null) {
       return <Uint8List>[];
     }
-    final controller = StreamController<Uint8List>();
-    controller.add(thumb);
-    await controller.close();
-    return _frameExtractor.collectDistinctFrames(
-      controller.stream,
-      hasher: _hasher,
-    );
+    // The adaptive frame extractor skips an initial warm-up segment based on the
+    // configured frame rate. When we only have a single thumbnail frame
+    // available, feeding it through the extractor would always yield an empty
+    // result. Since the thumbnail is already representative, bypass the
+    // extractor and return it directly.
+    return <Uint8List>[thumb];
   }
 
   Future<bool> _ensurePermissions() async {
