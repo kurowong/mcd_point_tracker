@@ -138,6 +138,7 @@ class TextRecognitionService {
       typeConfidence: typeConfidence,
       dateConfidence: dateConfidence,
       pointsConfidence: pointsConfidence,
+      timeZoneOffsetMinutes: parsedDate.timeZoneOffset.inMinutes,
     );
   }
 

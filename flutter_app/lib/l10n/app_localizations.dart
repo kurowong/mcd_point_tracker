@@ -78,6 +78,17 @@ class AppLocalizations {
       'transactionTypeUsed': 'Used',
       'transactionTypeExpired': 'Expired',
       'noPendingRows': 'All caught up — no flagged transactions.',
+      'dataManagementTitle': 'Data management',
+      'dataManagementDescription':
+          'Clear stored transactions, preferences, and raw media captures.',
+      'resetConfirmationTitle': 'Reset all data?',
+      'resetConfirmationBody':
+          'This will delete pending reviews, ledger history, and cached media. '
+              'This action cannot be undone.',
+      'cancelAction': 'Cancel',
+      'confirmResetAction': 'Reset',
+      'fullResetActionLabel': 'Full reset',
+      'resetCompleteMessage': 'All local data was cleared.',
     },
     'es': {
       'appTitle': 'MCD Rastreador de Puntos',
@@ -140,6 +151,17 @@ class AppLocalizations {
       'transactionTypeUsed': 'Canjeados',
       'transactionTypeExpired': 'Vencidos',
       'noPendingRows': 'Todo al día: no hay transacciones marcadas.',
+      'dataManagementTitle': 'Administración de datos',
+      'dataManagementDescription':
+          'Borra transacciones, preferencias y capturas de medios guardadas.',
+      'resetConfirmationTitle': '¿Restablecer todos los datos?',
+      'resetConfirmationBody':
+          'Esto eliminará las revisiones pendientes, el historial del libro y '
+              'los medios almacenados. Esta acción no se puede deshacer.',
+      'cancelAction': 'Cancelar',
+      'confirmResetAction': 'Restablecer',
+      'fullResetActionLabel': 'Restablecimiento total',
+      'resetCompleteMessage': 'Todos los datos locales fueron eliminados.',
     },
   };
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../controllers/ledger_controller.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/mock_data.dart';
 import '../widgets/duplicate_warning_list.dart';
@@ -9,9 +10,14 @@ import '../widgets/monthly_activity_chart.dart';
 import '../widgets/review_queue_list.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key, required this.data});
+  const DashboardScreen({
+    super.key,
+    required this.data,
+    required this.ledgerController,
+  });
 
   final DashboardData data;
+  final LedgerController ledgerController;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +49,13 @@ class DashboardScreen extends StatelessWidget {
                     children: [
                       SizedBox(
                         width: _sectionWidth(constraints.maxWidth),
-                        child: LedgerTable(entries: data.ledger),
+                        child: AnimatedBuilder(
+                          animation: ledgerController,
+                          builder: (context, _) {
+                            final entries = ledgerController.entries;
+                            return LedgerTable(entries: entries);
+                          },
+                        ),
                       ),
                       SizedBox(
                         width: _sectionWidth(constraints.maxWidth),

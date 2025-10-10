@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../controllers/media_ingestion_controller.dart';
 import '../../controllers/preference_controller.dart';
+import '../../controllers/transaction_review_controller.dart';
 import '../../l10n/app_localizations.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -9,10 +10,12 @@ class SettingsScreen extends StatelessWidget {
     super.key,
     required this.preferences,
     required this.ingestionController,
+    required this.reviewController,
   });
 
   final PreferenceController preferences;
   final MediaIngestionController ingestionController;
+  final TransactionReviewController reviewController;
 
   @override
   Widget build(BuildContext context) {
@@ -160,6 +163,84 @@ class SettingsScreen extends StatelessWidget {
                 ),
               );
             },
+          ),
+          const SizedBox(height: 16),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    localization.translate('dataManagementTitle'),
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    localization.translate('dataManagementDescription'),
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: () async {
+                      final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text(
+                                  localization
+                                      .translate('resetConfirmationTitle'),
+                                ),
+                                content: Text(
+                                  localization
+                                      .translate('resetConfirmationBody'),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: Text(
+                                      localization.translate('cancelAction'),
+                                    ),
+                                  ),
+                                  FilledButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                    child: Text(
+                                      localization
+                                          .translate('confirmResetAction'),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ) ??
+                          false;
+                      if (!confirmed) {
+                        return;
+                      }
+                      await preferences.reset();
+                      await reviewController.reset();
+                      await ingestionController.resetAll(
+                        deleteMediaFiles: true,
+                      );
+                      final messenger = ScaffoldMessenger.of(context);
+                      messenger.showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            localization.translate('resetCompleteMessage'),
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.restart_alt),
+                    label:
+                        Text(localization.translate('fullResetActionLabel')),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
