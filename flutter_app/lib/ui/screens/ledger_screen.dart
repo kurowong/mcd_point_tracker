@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../controllers/ledger_controller.dart';
 import '../../l10n/app_localizations.dart';
-import '../../models/mock_data.dart';
 import '../widgets/ledger_table.dart';
 
 class LedgerScreen extends StatelessWidget {
-  const LedgerScreen({super.key, required this.ledger});
+  const LedgerScreen({super.key, required this.controller});
 
-  final List<LedgerEntry> ledger;
+  final LedgerController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,12 @@ class LedgerScreen extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyLarge,
           ),
           const SizedBox(height: 16),
-          LedgerTable(entries: ledger),
+          AnimatedBuilder(
+            animation: controller,
+            builder: (context, _) {
+              return LedgerTable(entries: controller.entries);
+            },
+          ),
         ],
       ),
     );

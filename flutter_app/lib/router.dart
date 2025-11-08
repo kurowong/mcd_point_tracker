@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'controllers/ledger_controller.dart';
 import 'controllers/media_ingestion_controller.dart';
+import 'controllers/notification_controller.dart';
 import 'controllers/preference_controller.dart';
 import 'controllers/transaction_review_controller.dart';
 import 'l10n/app_localizations.dart';
@@ -18,6 +20,8 @@ GoRouter createRouter(
   PreferenceController preferences,
   MediaIngestionController ingestionController,
   TransactionReviewController reviewController,
+  LedgerController ledgerController,
+  NotificationController notificationController,
 ) {
   return GoRouter(
     navigatorKey: navigatorKey,
@@ -83,12 +87,16 @@ GoRouter createRouter(
           GoRoute(
             path: '/dashboard',
             name: 'dashboard',
-            builder: (context, state) => DashboardScreen(data: data),
+            builder: (context, state) => DashboardScreen(
+              data: data,
+              ledgerController: ledgerController,
+            ),
           ),
           GoRoute(
             path: '/ledger',
             name: 'ledger',
-            builder: (context, state) => LedgerScreen(ledger: data.ledger),
+            builder: (context, state) =>
+                LedgerScreen(controller: ledgerController),
           ),
           GoRoute(
             path: '/manual-review',
@@ -108,6 +116,8 @@ GoRouter createRouter(
             builder: (context, state) => SettingsScreen(
               preferences: preferences,
               ingestionController: ingestionController,
+              reviewController: reviewController,
+              notificationController: notificationController,
             ),
           ),
         ],

@@ -78,6 +78,24 @@ class AppLocalizations {
       'transactionTypeUsed': 'Used',
       'transactionTypeExpired': 'Expired',
       'noPendingRows': 'All caught up — no flagged transactions.',
+      'dataManagementTitle': 'Data management',
+      'dataManagementDescription':
+          'Clear stored transactions, preferences, and raw media captures.',
+      'resetConfirmationTitle': 'Reset all data?',
+      'resetConfirmationBody':
+          'This will delete pending reviews, ledger history, and cached media. '
+              'This action cannot be undone.',
+      'cancelAction': 'Cancel',
+      'confirmResetAction': 'Reset',
+      'fullResetActionLabel': 'Full reset',
+      'resetCompleteMessage': 'All local data was cleared.',
+      'notificationsTitle': 'Notifications',
+      'notificationsDescription':
+          'Send reminders 14 days before expiry at 9:00 MYT.',
+      'notificationThresholdLabel': 'Next-month expiration threshold',
+      'notificationNextMonthLabel':
+          'Next month ({month}) expiring total:',
+      'pointsAbbreviation': 'pts',
     },
     'es': {
       'appTitle': 'MCD Rastreador de Puntos',
@@ -140,6 +158,25 @@ class AppLocalizations {
       'transactionTypeUsed': 'Canjeados',
       'transactionTypeExpired': 'Vencidos',
       'noPendingRows': 'Todo al día: no hay transacciones marcadas.',
+      'dataManagementTitle': 'Administración de datos',
+      'dataManagementDescription':
+          'Borra transacciones, preferencias y capturas de medios guardadas.',
+      'resetConfirmationTitle': '¿Restablecer todos los datos?',
+      'resetConfirmationBody':
+          'Esto eliminará las revisiones pendientes, el historial del libro y '
+              'los medios almacenados. Esta acción no se puede deshacer.',
+      'cancelAction': 'Cancelar',
+      'confirmResetAction': 'Restablecer',
+      'fullResetActionLabel': 'Restablecimiento total',
+      'resetCompleteMessage': 'Todos los datos locales fueron eliminados.',
+      'notificationsTitle': 'Notificaciones',
+      'notificationsDescription':
+          'Envía recordatorios 14 días antes del vencimiento a las 9:00 MYT.',
+      'notificationThresholdLabel':
+          'Umbral de vencimientos del próximo mes',
+      'notificationNextMonthLabel':
+          'Total a vencer el próximo mes ({month}):',
+      'pointsAbbreviation': 'pts',
     },
   };
 

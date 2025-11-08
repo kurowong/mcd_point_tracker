@@ -3,10 +3,11 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../data/raw_media_repository.dart';
+import '../data/settings_repository.dart';
 import '../ingestion/adaptive_frame_extractor.dart';
 import '../ingestion/gallery_video_import_service.dart';
 import '../ingestion/live_screen_capture_service.dart';
-import '../ingestion/media_repository.dart';
 import '../ingestion/perceptual_hash.dart';
 import '../ingestion/raw_media_metadata.dart';
 import '../ingestion/raw_media_type.dart';
@@ -30,10 +31,12 @@ class IngestionReport {
 
 class MediaIngestionController extends ChangeNotifier {
   MediaIngestionController({
-    required MediaRepository repository,
+    required RawMediaRepository mediaRepository,
+    required SettingsRepository settingsRepository,
     required TextRecognitionService textRecognition,
     required TransactionReviewController reviewController,
-  })  : _repository = repository,
+  })  : _mediaRepository = mediaRepository,
+        _settingsRepository = settingsRepository,
         _hasher = const PerceptualHash(),
         _textRecognition = textRecognition,
         _reviewController = reviewController {
@@ -53,7 +56,8 @@ class MediaIngestionController extends ChangeNotifier {
     );
   }
 
-  final MediaRepository _repository;
+  final RawMediaRepository _mediaRepository;
+  final SettingsRepository _settingsRepository;
   final PerceptualHash _hasher;
   final TextRecognitionService _textRecognition;
   final TransactionReviewController _reviewController;
@@ -71,12 +75,12 @@ class MediaIngestionController extends ChangeNotifier {
   bool get liveCaptureActive => _liveCaptureActive;
 
   Future<void> initialize() async {
-    final storedAssets = await _repository.loadMetadata();
+    final storedAssets = await _mediaRepository.loadMetadata();
     _assets
       ..clear()
       ..addAll(storedAssets);
-    _retentionDays = await _repository.loadRetentionDays();
-    _ingestRecognizedTransactions(storedAssets);
+    _retentionDays = await _settingsRepository.loadRetentionDays();
+    await _ingestRecognizedTransactions(storedAssets);
     notifyListeners();
   }
 
@@ -103,8 +107,8 @@ class MediaIngestionController extends ChangeNotifier {
     }
     _assets.addAll(additions);
     _assets.sort((a, b) => b.capturedAt.compareTo(a.capturedAt));
-    await _repository.appendMetadata(additions);
-    _ingestRecognizedTransactions(additions);
+    await _mediaRepository.appendMetadata(additions);
+    await _ingestRecognizedTransactions(additions);
     notifyListeners();
   }
 
@@ -113,21 +117,28 @@ class MediaIngestionController extends ChangeNotifier {
       return;
     }
     _retentionDays = days;
-    await _repository.saveRetentionDays(days);
+    await _settingsRepository.saveRetentionDays(days);
     notifyListeners();
   }
 
   Future<int> cleanupExpiredAssets() async {
-    final removed = await _repository
+    final removed = await _mediaRepository
         .cleanupExpired(Duration(days: _retentionDays));
     if (removed > 0) {
-      final retained = await _repository.loadMetadata();
+      final retained = await _mediaRepository.loadMetadata();
       _assets
         ..clear()
         ..addAll(retained);
       notifyListeners();
     }
     return removed;
+  }
+
+  Future<void> resetAll({bool deleteMediaFiles = false}) async {
+    await _mediaRepository.clearAll(deleteMediaFiles: deleteMediaFiles);
+    _assets.clear();
+    _retentionDays = await _settingsRepository.loadRetentionDays();
+    notifyListeners();
   }
 
   Future<bool> ensureLiveCapturePermissions() {
@@ -181,13 +192,14 @@ class MediaIngestionController extends ChangeNotifier {
     return IngestionReport(unique: unique, duplicates: duplicates);
   }
 
-  void _ingestRecognizedTransactions(List<RawMediaMetadata> metadata) {
+  Future<void> _ingestRecognizedTransactions(
+      List<RawMediaMetadata> metadata) async {
     final transactions = <ParsedTransaction>[];
     for (final item in metadata) {
       transactions.addAll(item.recognizedTransactions);
     }
     if (transactions.isNotEmpty) {
-      _reviewController.ingestRecognizedTransactions(transactions);
+      await _reviewController.ingestRecognizedTransactions(transactions);
     }
   }
 
@@ -215,7 +227,7 @@ class MediaIngestionController extends ChangeNotifier {
     );
     _assets.add(metadata);
     _assets.sort((a, b) => b.capturedAt.compareTo(a.capturedAt));
-    _ingestRecognizedTransactions([metadata]);
+    await _ingestRecognizedTransactions([metadata]);
     notifyListeners();
   }
 }
